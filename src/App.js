@@ -1,62 +1,73 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 import Dropdown from 'react-dropdown'
 import 'react-dropdown/style.css'
-//const ReactTable = window.ReactTable.default;
 
 class MyTable extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = { data: makeData(), columns : getColumns(), options : getOptions(), inputList : getInputs() };
-     
+     this.hideInput = this.hideInput.bind(this);
   }
 
   
   handleChange = (event) => {
+      var newOptions = [];
       for (var i = this.state.inputList.length - 1; i >= 0; i--) {
         if (this.state.inputList[i].value === event.value) 
           this.state.inputList[i].view = 1;
-          //this.setState({ inputList[i].view: 1 });
+          if (this.state.inputList[i].view === 0)
+          {
+          var newOption = {
+              label : this.state.inputList[i].label,
+              value : this.state.inputList[i].value,
+          };
+          newOptions.push(newOption);
+        }
       }
-       this.setState({options: 
-        this.state.options.filter(item => item.value !== event.value)  });
-    this.reLoad();
+      var index = this.state.inputList.indexOf(event.value);
+      
+    this.setState({options:  newOptions  });
+     this.setState({input: this.reLoad() });  
   };
 
-  close = (event) => {
-      console.log(event);
-      //this.setState({options: this.state.options.push(argument)  });   
-      this.reLoad();  
+  hideInput = () => {
+       var newOptions = [];
+      for (var i = this.state.inputList.length - 1; i >= 0; i--) {
+          if (this.state.inputList[i].view === 0)
+          {
+          var newOption = {
+              label : this.state.inputList[i].label,
+              value : this.state.inputList[i].value,
+                   };
+          newOptions.push(newOption);
+        }
+      }
+      
+      this.setState({options:  newOptions  });
+
+       this.setState({input: this.reLoad() });  
     }
 
   reLoad = function ()  
   {
-    this.setState({input: <div></div>});
-    
-    for (var i = this.state.inputList.length - 1; i >= 0; i--) 
-    {
-        if (this.state.inputList[i].view === 1)
-        {
-            this.setState({input: 
-            <div>
-            {this.state.input}
-            <div>
-                  <input type="text" value={this.state.inputList[i].label} />
-                  <button onClick={this.close} value={this.state.inputList[i].value}
-                  id={this.state.inputList[i].value}  >X</button>
-              </div> </div>});
-          }
-    }     
-    
-     
-     this.render();
+      return (
+        <div onClick={()=> this.hideInput() }>
+      {this.state.inputList.map(function(name, index){
+                     if (name.view === 1)
+                    return ( 
+                        <div key={ index }>
+                          <input type="text" value={name.value} key={ index } />
+                          <button onClick={()=> name.view = 0 } id={name.value} key={ index } >X</button>
+                        </div>)
+                  })}
+          </div>
+          )
   }
   
-    
  
 
   render() {
